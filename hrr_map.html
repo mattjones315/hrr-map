@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.hrr {
+  fill: none;
+  stroke: #595959;
+  stroke-linejoin: round;
+}  
+
+.states {
+  fill: none;
+  stroke: #D3D3D3;
+  stroke-linejoin: round;
+}
+
+.region:hover {
+  stroke: black;
+  border: .75px;
+}
+
+div.tooltip {
+ position: absolute;
+ width: 140px;
+ height: 100px;
+ padding: 5px;
+ background: #ffffff;
+ opacity: 80%;
+ border: 1px solid #dedede;
+ border-color: black;
+ pointer-events: none;
+}
+
+.hrr-name {
+  font-weight: bold;
+  font-family: "Arial", Helvetica, sans-serif;
+  font-size: 12px;
+  border-bottom: 1px solid #dedede;
+}
+
+.table {
+  font-size: 12px;
+  text-align: left;
+}
+.legend {
+  text-align: left;
+  font-family: "Arial", Helvetica, sans-serif;
+  border-radius: 50px;
+}
+
+
+</style>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+<script src='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
+<script>
+
+L.mapbox.accessToken = 'pk.eyJ1IjoiYmNodCIsImEiOiJjaWp4Z2Z6czMweTJldjJtNWRtNHB5Z2o0In0.0Sn8cM2AMjvktOZRFuedWg';
+
+
+var width = 1020,
+    height = 500;
+
+var color_domain = [-150, 150];
+var color = d3.scale.linear()
+    .domain(color_domain)
+    .range(["green", "red"]);
+
+var legend_colors = [-300, -200, -100, 0, 100, 200];
+var legend_labels = [" < -$300", "-$200", "-$100", "$0", "$100", " > $200"];
+
+
+var div = d3.select("body").append("div")
+ .attr("class", "tooltip")
+ .style("opacity", 0);
+ 
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+var projection = d3.geo.albersUsa() 
+
+var path = d3.geo.path()
+    .projection(projection);
+
+queue()
+ .defer(d3.json, "hrr_top.json")
+ .defer(d3.csv, "savings_hrr_8-20-2015.csv")
+ .defer(d3.csv, "colonoscopy_hrr_price_characteristics.csv")
+ .defer(d3.json, "us-10m.json")
+ .await(ready);
+
+
+function ready(error, us, data, data2, over) {
+ var pairSavingWithId = {};
+ var pairTruncSavingWithId = {};
+ var pairNameWithId = {};
+ var pairPriceWithId = {};
+ 
+ var pairCVWithId = {};
+ var pairRatioWithId = {};
+ console.log(us);
+  data.forEach(function(d) {
+    pairSavingWithId[d.hrrname] = +d.Savings;
+    pairTruncSavingWithId[d.hrrname] = d.trunc_savings;
+    pairNameWithId[d.hrrname] = d.hrrname;
+    pairPriceWithId[d.hrrname] = d.trunc_price;
+    pairRatioWithId[d.hrrname] = d.trunc_ratio;
+  });
+
+    svg.append("g")
+      .attr("class", "hrr")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.HRR_Bdry).features)
+      .enter().append("path")
+        .attr("d", path)
+        .style ( "fill" , function (d) {
+          return color (pairSavingWithId[d.id]);
+        })
+      .style("opacity", 0.8)
+      .on("mouseover", function(d) {
+        d3.select(this).attr("class", "region")
+        d3.select(this).transition().duration(100).style("opacity", 20)
+        div.transition().duration(100)
+          .style("opacity", 1)
+          div.html("<p class='hrr-name'>" + pairNameWithId[d.id] + "<\p> <p class='table'>" + "Savings: " + pairTruncSavingWithId[d.id] + "<br>" +   "Mean Price: " + pairPriceWithId[d.id] + "<br>" + "75:25 Ratio: " + pairRatioWithId[d.id] + "<\p>")
+            .style("left", (d3.event.pageX +10) + "px")
+            .style("top", (d3.event.pageY +30) + "px");
+        })
+      .on("mouseout", function() {
+       d3.select(this)
+       .transition().duration(300)
+       .style("opacity", 0.8);
+       div.transition().duration(300)
+       .style("opacity", 0);
+       })
+
+    svg.append("g")
+      .attr("class", "states")
+      .selectAll("path")
+      .data(topojson.feature(over, over.objects.states).features)
+      .enter().append("path")
+      .filter(function(d) {
+        return d.id != 2 && d.id != 15;
+      })
+        .attr("d", path);
+}
+
+var legend = svg.selectAll("g.legend")
+    .data(legend_colors)
+    .enter().append("g")
+    .attr("class", "legend");
+
+var ls_w = 50; ls_h = 50;
+
+legend.append("rect")
+      .attr("x", 900)
+      .attr("y", function(d, i) {return height - (i *ls_h) - 2*ls_h;})
+      .attr("width", ls_w)
+      .attr("height", ls_h)
+      .style("fill", function (d, i) {return color(d); })
+      .style("opacity", 0.8);
+legend.append("text")
+      .attr("x", 960)
+      .attr("y", function (d, i) {return height - (i* ls_h) - ls_h - 6;})
+      .text(function (d, i) {return legend_labels[i]; });
+legend.append("text")
+      .attr("x", 880)
+      .attr("y", 120)
+      .text("Potential Savings")
+legend.append("text")
+      .attr("x", 880)
+      .attr("y", 140)
+      .text("Per Treatment");
+</script>
