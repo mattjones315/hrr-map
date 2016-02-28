@@ -40,6 +40,7 @@ div.tooltip {
 
 .table {
   font-size: 12px;
+  font-family: "Arial", Helvetica, sans-serif;
   text-align: left;
 }
 .legend {
@@ -48,9 +49,16 @@ div.tooltip {
   border-radius: 50px;
 }
 
+.title {
+  font-weight: bold;
+  font-size: 16px;
+  font-family: "Arial", Helvetica, sans-serif;
+  text-align: center;
+}
 
 </style>
-<body>
+<div class="title">
+Potential Savings from Reference Pricing for Colonoscopy Procedures by HRR  </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
@@ -58,16 +66,13 @@ div.tooltip {
 <link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
 <script>
 
-L.mapbox.accessToken = 'pk.eyJ1IjoiYmNodCIsImEiOiJjaWp4Z2Z6czMweTJldjJtNWRtNHB5Z2o0In0.0Sn8cM2AMjvktOZRFuedWg';
-
-
 var width = 1020,
     height = 500;
 
-var color_domain = [-100, 175];
+var color_domain = [-150,0,175];
 var color = d3.scale.linear()
     .domain(color_domain)
-    .range(["#3182bd", "#deebf7"]);
+    .range(["#3182bd", "#9ecae1", "#deebf7"]);
 
 var legend_colors = [-300, -200, -100, 0, 100, 200];
 var legend_labels = [" < -$300", "-$200", "-$100", "$0", "$100", " > $200"];
