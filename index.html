@@ -64,10 +64,10 @@ L.mapbox.accessToken = 'pk.eyJ1IjoiYmNodCIsImEiOiJjaWp4Z2Z6czMweTJldjJtNWRtNHB5Z
 var width = 1020,
     height = 500;
 
-var color_domain = [-150, 150];
+var color_domain = [-100, 175];
 var color = d3.scale.linear()
     .domain(color_domain)
-    .range([#deebf7, #3182bd]);
+    .range(["#3182bd", "#deebf7"]);
 
 var legend_colors = [-300, -200, -100, 0, 100, 200];
 var legend_labels = [" < -$300", "-$200", "-$100", "$0", "$100", " > $200"];
@@ -106,9 +106,9 @@ function ready(error, us, data, data2, over) {
  console.log(us);
   data.forEach(function(d) {
     pairSavingWithId[d.hrrname] = +d.Savings;
-    pairTruncSavingWithId[d.hrrname] = d.trunc_savings;
+    pairTruncSavingWithId[d.hrrname] = d.Savings;
     pairNameWithId[d.hrrname] = d.hrrname;
-    pairPriceWithId[d.hrrname] = d.trunc_price;
+    pairPriceWithId[d.hrrname] = d.mean_price;
     pairRatioWithId[d.hrrname] = d.trunc_ratio;
   });
 
@@ -127,7 +127,7 @@ function ready(error, us, data, data2, over) {
         d3.select(this).transition().duration(100).style("opacity", 20)
         div.transition().duration(100)
           .style("opacity", 1)
-          div.html("<p class='hrr-name'>" + pairNameWithId[d.id] + "<\p> <p class='table'>" + "Savings: " + pairTruncSavingWithId[d.id] + "<br>" +   "Mean Price: " + pairPriceWithId[d.id] + "<br>" + "75:25 Ratio: " + pairRatioWithId[d.id] + "<\p>")
+          div.html("<p class='hrr-name'>" + pairNameWithId[d.id] + "<\p> <p class='table'>" + "Savings: $" + pairTruncSavingWithId[d.id] + "<br>" +   "Mean Price: $" + pairPriceWithId[d.id] + "<br>" + "75:25 Ratio: " + pairRatioWithId[d.id] + "<\p>")
             .style("left", (d3.event.pageX +10) + "px")
             .style("top", (d3.event.pageY +30) + "px");
         })
