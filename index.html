@@ -132,7 +132,7 @@ function ready(error, us, data, data2, over) {
         d3.select(this).transition().duration(100).style("opacity", 20)
         div.transition().duration(100)
           .style("opacity", 1)
-          div.html("<p class='hrr-name'>" + pairNameWithId[d.id] + "<\p> <p class='table'>" + "Savings: $" + pairTruncSavingWithId[d.id] + "<br>" +   "Mean Price: $" + pairPriceWithId[d.id] + "<br>" + "75:25 Price Precentile Ratio: " + pairRatioWithId[d.id] + "<\p>")
+          div.html("<p class='hrr-name'>" + pairNameWithId[d.id] + "<\p> <p class='table'>" + "Savings: $" + pairTruncSavingWithId[d.id] + "<br>" +   "Mean Price: $" + pairPriceWithId[d.id] + "<br>" + "75:25 Price Percentile Ratio: " + pairRatioWithId[d.id] + "<\p>")
             .style("left", (d3.event.pageX +10) + "px")
             .style("top", (d3.event.pageY +30) + "px");
         })
